@@ -23,14 +23,19 @@ COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt --timeout 120 --retries 5
 
-# Pre-download the sentence transformer model during build
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('neuralmind/bert-base-portuguese-cased')"
+# Debug: Check if sentence-transformers is installed
+RUN pip list | grep sentence-transformers || echo "sentence-transformers not found"
+RUN python -c "try: import sentence_transformers; print('sentence_transformers imported successfully'); except ImportError as e: print('Import error:', e)"
+
+# Note: Pre-download moved to runtime to avoid build issues
 
 # Copy project
 COPY . .
 
-# Create a script to wait for postgres
+# Create a script to wait for postgres and pre-download model
 RUN echo '#!/bin/bash\n\
+echo "Pre-downloading sentence transformer model..."\n\
+python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('\''neuralmind/bert-base-portuguese-cased'\'')" || echo "Model pre-download failed, will download on first use"\n\
 until pg_isready -h postgres -p 5432 -U $POSTGRES_USER; do\n\
   echo "Waiting for postgres..."\n\
   sleep 2\n\
