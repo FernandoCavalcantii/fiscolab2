@@ -23,9 +23,16 @@ COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt --timeout 120 --retries 5
 
-# Debug: Check if sentence-transformers is installed
+# Explicitly install sentence-transformers with specific version
+RUN pip install sentence-transformers==2.2.2
+
+# Debug: Check what was installed
+RUN echo "=== Checking installed packages ==="
+RUN pip list | head -20
+RUN echo "=== Looking for sentence-transformers ==="
 RUN pip list | grep sentence-transformers || echo "sentence-transformers not found"
-RUN python -c "try: import sentence_transformers; print('sentence_transformers imported successfully'); except ImportError as e: print('Import error:', e)"
+RUN echo "=== Trying to import sentence-transformers ==="
+RUN python -c "try:\n    import sentence_transformers\n    print('sentence_transformers imported successfully')\nexcept ImportError as e:\n    print('Import error:', e)"
 
 # Note: Pre-download moved to runtime to avoid build issues
 
