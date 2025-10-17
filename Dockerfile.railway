@@ -25,15 +25,12 @@ COPY back/requirements.txt .
 RUN pip install --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt --timeout 120 --retries 5
 
+# Pre-download the sentence transformer model during build
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('neuralmind/bert-base-portuguese-cased')"
+
 # Copy project
 COPY back/ .
 COPY chatbot/ ./chatbot/
-
-# Install chatbot dependencies
-RUN pip install --no-cache-dir -r chatbot/requirements.txt --timeout 120 --retries 5
-
-# Pre-download the sentence transformer model during build
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('neuralmind/bert-base-portuguese-cased')"
 
 # Create a script to wait for postgres (Railway handles this automatically)
 RUN echo '#!/bin/bash\n\
