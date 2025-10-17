@@ -32,7 +32,7 @@ RUN pip list | head -20
 RUN echo "=== Looking for sentence-transformers ==="
 RUN pip list | grep sentence-transformers || echo "sentence-transformers not found"
 RUN echo "=== Trying to import sentence-transformers ==="
-RUN python -c "try:\n    import sentence_transformers\n    print('sentence_transformers imported successfully')\nexcept ImportError as e:\n    print('Import error:', e)"
+RUN echo 'try:\n    import sentence_transformers\n    print("sentence_transformers imported successfully")\nexcept ImportError as e:\n    print("Import error:", e)' > /tmp/test_import.py && python /tmp/test_import.py
 
 # Note: Pre-download moved to runtime to avoid build issues
 
