@@ -23,8 +23,14 @@ COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt --timeout 120 --retries 5
 
-# Install compatible versions of sentence-transformers and huggingface_hub
+# Install CPU-only PyTorch and sentence-transformers to reduce image size
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 RUN pip install sentence-transformers>=2.7.0 huggingface_hub>=0.20.0
+
+# Clean up to reduce image size
+RUN pip cache purge
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Note: sentence-transformers will be tested at runtime
 
