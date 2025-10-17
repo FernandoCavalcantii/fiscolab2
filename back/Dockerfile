@@ -53,7 +53,7 @@ echo "PostgreSQL started"\n\
 exec "$@"' > /wait-for-postgres.sh && chmod +x /wait-for-postgres.sh
 
 # Expose port
-EXPOSE 8000
+EXPOSE $PORT
 
 # Run the application
-CMD ["/wait-for-postgres.sh", "sh", "-c", "python manage.py migrate && python manage.py seed_admin && python manage.py runserver 0.0.0.0:8000"]
+CMD ["/wait-for-postgres.sh", "sh", "-c", "echo 'Starting Django application...' && python manage.py migrate && echo 'Migrations completed' && python manage.py seed_admin && echo 'Admin seeded' && echo 'Starting server on port $PORT' && python manage.py runserver 0.0.0.0:$PORT"]
