@@ -23,16 +23,11 @@ COPY requirements.txt .
 RUN pip install --upgrade pip setuptools wheel \
     && pip install --no-cache-dir -r requirements.txt --timeout 120 --retries 5
 
-# Explicitly install sentence-transformers with specific version
-RUN pip install sentence-transformers==2.2.2
+# Install compatible versions of sentence-transformers and huggingface_hub
+RUN pip install sentence-transformers>=2.7.0 huggingface_hub>=0.20.0
 
-# Debug: Check what was installed
-RUN echo "=== Checking installed packages ==="
-RUN pip list | head -20
-RUN echo "=== Looking for sentence-transformers ==="
-RUN pip list | grep sentence-transformers || echo "sentence-transformers not found"
-RUN echo "=== Trying to import sentence-transformers ==="
-RUN echo 'try:\n    import sentence_transformers\n    print("sentence_transformers imported successfully")\nexcept ImportError as e:\n    print("Import error:", e)' > /tmp/test_import.py && python /tmp/test_import.py
+# Quick test to verify sentence-transformers works
+RUN python -c "import sentence_transformers; print('sentence-transformers imported successfully')"
 
 # Note: Pre-download moved to runtime to avoid build issues
 
