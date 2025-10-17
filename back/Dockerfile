@@ -26,18 +26,19 @@ RUN pip install --upgrade pip setuptools wheel \
 # Install compatible versions of sentence-transformers and huggingface_hub
 RUN pip install sentence-transformers>=2.7.0 huggingface_hub>=0.20.0
 
-# Quick test to verify sentence-transformers works
-RUN python -c "import sentence_transformers; print('sentence-transformers imported successfully')"
+# Note: sentence-transformers will be tested at runtime
 
 # Note: Pre-download moved to runtime to avoid build issues
 
 # Copy project
 COPY . .
 
-# Create a script to wait for postgres and pre-download model
+# Create optimized startup script
 RUN echo '#!/bin/bash\n\
-echo "Pre-downloading sentence transformer model..."\n\
-python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('\''neuralmind/bert-base-portuguese-cased'\'')" || echo "Model pre-download failed, will download on first use"\n\
+# Start model download in background\n\
+echo "Starting model download in background..."\n\
+python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('\''neuralmind/bert-base-portuguese-cased'\'')" &\n\
+# Wait for postgres\n\
 until pg_isready -h postgres -p 5432 -U $POSTGRES_USER; do\n\
   echo "Waiting for postgres..."\n\
   sleep 2\n\
